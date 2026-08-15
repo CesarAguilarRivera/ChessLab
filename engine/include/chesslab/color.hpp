@@ -7,6 +7,7 @@
 
 namespace chesslab {
 
+/// @brief - Represents the color of a chess piece or player.
 enum class Color {
     White,
     Black
