@@ -1,6 +1,7 @@
 #include <chesslab/position.hpp>
 #include <cctype>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 namespace chesslab {
@@ -42,11 +43,20 @@ Color Position::sideToMove() const {
 }
 
 Position Position::fromFEN(const std::string& fen) {
+    std::istringstream fenStream(fen);
+    std::string boardField;
+    std::string activeColorField;
+    std::string extraField;
+
+    if (!(fenStream >> boardField >> activeColorField) || fenStream >> extraField) {
+        throw std::invalid_argument("FEN must contain exactly two fields");
+    }
+
     Position position;
     int rank = 7;
     int file = 0;
 
-    for (char character : fen) {
+    for (char character : boardField) {
         if (character == '/') {
             if (file != 8 || rank == 0) {
                 throw std::invalid_argument("Invalid FEN rank");
@@ -73,6 +83,14 @@ Position Position::fromFEN(const std::string& fen) {
 
     if (rank != 0 || file != 8) {
         throw std::invalid_argument("FEN must contain exactly eight complete ranks");
+    }
+
+    if (activeColorField == "w") {
+        position.sideToMove_ = Color::White;
+    } else if (activeColorField == "b") {
+        position.sideToMove_ = Color::Black;
+    } else {
+        throw std::invalid_argument("Invalid FEN active color");
     }
 
     return position;

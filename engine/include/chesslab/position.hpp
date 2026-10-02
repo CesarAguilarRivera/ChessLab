@@ -29,8 +29,8 @@ class Position {
         /// @brief - Gets the color of the side to move.
         Color sideToMove() const;
 
-        /// @brief - Creates a position from the piece-placement portion of a FEN.
-        /// @throws std::invalid_argument if the piece placement is malformed.
+        /// @brief - Creates a position from FEN piece-placement and active-color fields.
+        /// @throws std::invalid_argument if either field is malformed.
         static Position fromFEN(const std::string& fen);
 
         /// @brief  - Sets the piece at the specified square.

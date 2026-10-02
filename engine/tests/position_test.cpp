@@ -70,7 +70,7 @@ TEST(PositionTest, LowAndHighSquaresMapCorrectly) {
 
 TEST(PositionFENTest, ParsesStandardStartingBoard) {
     Position position = Position::fromFEN(
-        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
 
     const std::array<PieceType, 8> backRank{
         PieceType::Rook,
@@ -111,7 +111,7 @@ TEST(PositionFENTest, ParsesStandardStartingBoard) {
 }
 
 TEST(PositionFENTest, ParsesEmptyBoard) {
-    Position position = Position::fromFEN("8/8/8/8/8/8/8/8");
+    Position position = Position::fromFEN("8/8/8/8/8/8/8/8 w");
 
     for (int square = 0; square < 64; ++square) {
         EXPECT_FALSE(position.pieceAt(static_cast<Square>(square)).has_value());
@@ -119,7 +119,7 @@ TEST(PositionFENTest, ParsesEmptyBoard) {
 }
 
 TEST(PositionFENTest, ParsesSimplePosition) {
-    Position position = Position::fromFEN("8/8/8/8/8/8/P7/8");
+    Position position = Position::fromFEN("8/8/8/8/8/8/P7/8 b");
 
     std::optional<Piece> pawn = position.pieceAt(Square::A2);
     ASSERT_TRUE(pawn.has_value());
@@ -129,12 +129,42 @@ TEST(PositionFENTest, ParsesSimplePosition) {
 }
 
 TEST(PositionFENTest, RejectsInvalidPieceCharacter) {
-    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/7X"), std::invalid_argument);
+    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/7X w"), std::invalid_argument);
 }
 
 TEST(PositionFENTest, RejectsMalformedRankWidth) {
-    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/9"), std::invalid_argument);
-    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/7"), std::invalid_argument);
+    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/9 w"), std::invalid_argument);
+    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/7 w"), std::invalid_argument);
+}
+
+TEST(PositionFENTest, ParsesWhiteActiveColor) {
+    Position position = Position::fromFEN("8/8/8/8/8/8/8/8 w");
+
+    EXPECT_EQ(position.sideToMove(), Color::White);
+}
+
+TEST(PositionFENTest, ParsesBlackActiveColor) {
+    Position position = Position::fromFEN("8/8/8/8/8/8/8/8 b");
+
+    EXPECT_EQ(position.sideToMove(), Color::Black);
+}
+
+TEST(PositionFENTest, RejectsMissingActiveColor) {
+    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/8"), std::invalid_argument);
+}
+
+TEST(PositionFENTest, RejectsInvalidActiveColor) {
+    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/8 x"), std::invalid_argument);
+    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/8 W"), std::invalid_argument);
+    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/8 B"), std::invalid_argument);
+    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/8 white"), std::invalid_argument);
+    EXPECT_THROW(Position::fromFEN("8/8/8/8/8/8/8/8 black"), std::invalid_argument);
+}
+
+TEST(PositionFENTest, RejectsExtraFENFields) {
+    EXPECT_THROW(
+        Position::fromFEN("8/8/8/8/8/8/8/8 w extra"),
+        std::invalid_argument);
 }
 
 } // namespace
