@@ -9,6 +9,7 @@
 
 #include <array> 
 #include <optional>
+#include <string>
 
 #include <chesslab/piece.hpp>
 #include <chesslab/square.hpp>
@@ -24,6 +25,13 @@ class Position {
         /// @param square - The square to check.
         /// @return - The piece at the square, or std::nullopt if the square is empty.
         std::optional<Piece> pieceAt(Square square) const;
+
+        /// @brief - Gets the color of the side to move.
+        Color sideToMove() const;
+
+        /// @brief - Creates a position from the piece-placement portion of a FEN.
+        /// @throws std::invalid_argument if the piece placement is malformed.
+        static Position fromFEN(const std::string& fen);
 
         /// @brief  - Sets the piece at the specified square.
         /// @param square - The square where the piece will be placed.
@@ -41,7 +49,7 @@ class Position {
         /// @brief - The chessboard represented as a 1D array of optional pieces.
         std::array<std::optional<Piece>, 64> board;
         /// @brief - The color of the side to move.
-        Color sideToMove;
+        Color sideToMove_;
 };
 
 

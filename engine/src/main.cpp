@@ -8,10 +8,12 @@ int main() {
     chesslab::Piece whitePawn{chesslab::PieceType::Pawn, chesslab::Color::White};
     position.setPiece(chesslab::Square::A2, whitePawn);
 
-    // Check if the piece is set correctly
+    // Check if the piece is set correctly.
     auto piece = position.pieceAt(chesslab::Square::A2);
     if (piece) {
-        std::cout << "Piece at A2: " << (piece.has_value() ? "Exists" : "Does not exist") << std::endl;
+        std::cout << "Piece at A2: Exists\n";
+    } else {
+        std::cout << "Piece at A2: Does not exist\n";
     }
 
     position.printBoard();

@@ -5,12 +5,47 @@ project(ChessLab VERSION 0.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(chesslab
-    engine/src/main.cpp
+add_library(chesslab_engine
     engine/src/position.cpp
 )
 
-target_include_directories(chesslab
-    PRIVATE
+target_include_directories(chesslab_engine
+    PUBLIC
         engine/include
 )
+
+add_executable(chesslab
+    engine/src/main.cpp
+)
+
+target_link_libraries(chesslab
+    PRIVATE
+        chesslab_engine
+)
+
+include(CTest)
+
+if(BUILD_TESTING)
+    include(FetchContent)
+
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_Declare(
+        googletest
+        URL https://github.com/google/googletest/archive/refs/tags/v1.15.2.zip
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    FetchContent_MakeAvailable(googletest)
+
+    add_executable(position_tests
+        engine/tests/position_test.cpp
+    )
+
+    target_link_libraries(position_tests
+        PRIVATE
+            chesslab_engine
+            GTest::gtest_main
+    )
+
+    include(GoogleTest)
+    gtest_discover_tests(position_tests)
+endif()

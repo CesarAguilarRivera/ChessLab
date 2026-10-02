@@ -1,15 +1,81 @@
 #include <chesslab/position.hpp>
+#include <cctype>
 #include <iostream>
+#include <stdexcept>
 
 namespace chesslab {
 
-Position::Position() : sideToMove(Color::White) {
+namespace {
+
+Piece pieceFromFENCharacter(char character) {
+    Color color = std::isupper(static_cast<unsigned char>(character))
+        ? Color::White
+        : Color::Black;
+
+    char pieceCharacter = static_cast<char>(
+        std::tolower(static_cast<unsigned char>(character)));
+
+    switch (pieceCharacter) {
+        case 'p': return {PieceType::Pawn, color};
+        case 'n': return {PieceType::Knight, color};
+        case 'b': return {PieceType::Bishop, color};
+        case 'r': return {PieceType::Rook, color};
+        case 'q': return {PieceType::Queen, color};
+        case 'k': return {PieceType::King, color};
+        default: throw std::invalid_argument("Invalid FEN piece character");
+    }
+}
+
+} // namespace
+
+Position::Position() : sideToMove_(Color::White) {
     // Board starts empty for now.
 }
 
 std::optional<Piece> Position::pieceAt(Square square) const {
     // Convert the Square enum to an index in the board array
     return board[static_cast<std::size_t>(square)];
+}
+
+Color Position::sideToMove() const {
+    return sideToMove_;
+}
+
+Position Position::fromFEN(const std::string& fen) {
+    Position position;
+    int rank = 7;
+    int file = 0;
+
+    for (char character : fen) {
+        if (character == '/') {
+            if (file != 8 || rank == 0) {
+                throw std::invalid_argument("Invalid FEN rank");
+            }
+
+            --rank;
+            file = 0;
+        } else if (character >= '1' && character <= '8') {
+            file += character - '0';
+            if (file > 8) {
+                throw std::invalid_argument("FEN rank is too wide");
+            }
+        } else {
+            if (file >= 8) {
+                throw std::invalid_argument("FEN rank is too wide");
+            }
+
+            Piece piece = pieceFromFENCharacter(character);
+            Square square = static_cast<Square>(rank * 8 + file);
+            position.setPiece(square, piece);
+            ++file;
+        }
+    }
+
+    if (rank != 0 || file != 8) {
+        throw std::invalid_argument("FEN must contain exactly eight complete ranks");
+    }
+
+    return position;
 }
 
 void Position::setPiece(Square square, Piece piece) {
@@ -48,4 +114,4 @@ void Position::printBoard() const {
         std::cout << std::endl;
     }
 }
-}
+} // namespace chesslab
